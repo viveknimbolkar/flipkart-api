@@ -5,6 +5,7 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const app = express();
 const authRoute = require("./src/routes/auth");
+const customerRoute = require("./src/routes/customer");
 const db = require("./src/database/database");
 
 // Middlewares
@@ -13,6 +14,7 @@ app.use(cookieParser());
 app.use(bodyparser.urlencoded({ extended: true }));
 app.use(bodyparser.json());
 app.use(authRoute);
+app.use(customerRoute);
 
 app.listen(process.env.PORT, () => {
   console.log("listening on port: ", process.env.PORT);

@@ -1,29 +1,26 @@
 const mongoose = require("mongoose");
 const { Schema } = require("mongoose");
 
-
-// main user schema
-const customer = new Schema({
-  name: {
+// address schema
+const notification = new Schema({
+  title: {
     require: true,
     type: String,
   },
-  email: {
+  date: {
     require: true,
     type: String,
   },
-  password: {
+  thumbnail: {
     require: true,
     type: String,
   },
-  gender: {
+  expiryTime: {
     require: true,
     type: String,
   },
-  address: [String],
-  notifications:[String]
 });
 
-const Customer = mongoose.model("Customer", customer);
+const Notification = mongoose.model("Notification", notification);
 
-module.exports = { Customer };
+module.exports = { Notification };
