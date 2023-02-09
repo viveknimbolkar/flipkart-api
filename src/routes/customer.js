@@ -18,6 +18,61 @@ const verifyUser = (req, res, next) => {
   }
 };
 
+router.post("/add_address", verifyUser, async (req, res) => {
+  const token = jwt.decode(req.headers.authorization, process.env.JWT_SECRET);
+  const {
+    name,
+    mobile,
+    alternateMobile,
+    pincode,
+    address,
+    locality,
+    addressType,
+    city,
+    state,
+    landmark,
+  } = req.body;
+  if (
+    !name ||
+    !mobile ||
+    !alternateMobile ||
+    !pincode ||
+    !address ||
+    !locality ||
+    !addressType ||
+    !city ||
+    !state ||
+    !landmark
+  ) {
+    res.status(400).json({ message: "empty fields are not allowed" });
+  }
+  const newAddress = {
+    name: name,
+    mobile: mobile,
+    alternateMobile: alternateMobile,
+    pincode: pincode,
+    address: address,
+    locality: locality,
+    addressType: addressType,
+    city: city,
+    state: state,
+    landmark: landmark,
+  };
+
+  const filter = { email: token.email };
+  const updateAddress = {
+    $push: {
+      address: newAddress,
+    },
+  };
+  const addNewAddress = await Customer.updateOne(filter, updateAddress);
+  if (addNewAddress) {
+    res.status(200).json({ message: "address added successfully" });
+  } else {
+    res.status(200).json({ message: "something went wrong! try again later" });
+  }
+});
+
 router.post("/get_cart_items", verifyUser, async (req, res) => {});
 
 router.post("/add_to_cart", verifyUser, async (req, res) => {
