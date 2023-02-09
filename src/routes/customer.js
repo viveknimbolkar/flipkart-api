@@ -1,8 +1,86 @@
 const router = require("express").Router();
 const jwt = require("jsonwebtoken");
 const db = require("../database/database");
+const { Cart } = require("../model/cart");
 const { Customer } = require("../model/user");
 
+const verifyUser = (req, res, next) => {
+  var token = req.headers.authorization;
+  if (token) {
+    const verifyIdentity = jwt.verify(token, process.env.JWT_SECRET);
+    if (verifyIdentity) {
+      next();
+    } else {
+      res.status(400).json({ msg: "Unauthorized request" });
+    }
+  } else {
+    res.status(400).json({ msg: "Unauthorized request" });
+  }
+};
+
+router.post("/get_cart_items", verifyUser, async (req, res) => {});
+
+router.post("/add_to_cart", verifyUser, async (req, res) => {
+  const token = jwt.decode(req.headers.authorization, process.env.JWT_SECRET);
+  const {
+    name,
+    price,
+    image,
+    inStock,
+    discount,
+    originalPrice,
+    flipkartAssured,
+    sellerName,
+  } = req.body;
+
+  if (
+    !name ||
+    !price ||
+    !image ||
+    !inStock ||
+    !discount ||
+    !originalPrice ||
+    !flipkartAssured ||
+    !sellerName
+  ) {
+    res.status(400).json({ message: "empty fields are not allowed" });
+  }
+
+  const cartItem = {
+    name: name,
+    price: price,
+    image: image,
+    inStock: inStock,
+    discount: discount,
+    originalPrice: originalPrice,
+    flipkartAssured: flipkartAssured,
+    sellerName: sellerName,
+    one: "sld",
+  };
+  // add to cart table
+  const cart = new Cart(cartItem);
+  const result = await cart.save();
+  console.log(result);
+  if (result) {
+    // add cart item in respective user account
+    const filter = { email: token.email };
+    const updateCart = {
+      $push: {
+        cart: result._id,
+      },
+    };
+    const addCartItemToUser = await Customer.updateOne(filter, updateCart);
+    if (addCartItemToUser) {
+      res.status(200).json({ message: "cart item added" });
+    } else {
+      res
+        .status(200)
+        .json({ message: "something went wrong! try again later" });
+    }
+  } else {
+    res.status(200).json({ message: "something went wrong! try again later" });
+  }
+});
 
 router.post("/get_customer_gender", async (req, res) => {
   var token = req.headers.authorization;
@@ -40,7 +118,7 @@ router.post("/update_customer_gender", async (req, res) => {
   };
   const result = await Customer.updateOne(filter, updateDoc);
   res.status(200).json({
-    message: 'gender updated successfully',
+    message: "gender updated successfully",
   });
   res.end();
 });

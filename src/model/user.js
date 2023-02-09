@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
 const { Schema } = require("mongoose");
 
-
 // main user schema
 const customer = new Schema({
   name: {
@@ -21,7 +20,8 @@ const customer = new Schema({
     type: String,
   },
   address: [String],
-  notifications:[String]
+  notifications: [String],
+  cart: [String],
 });
 
 const Customer = mongoose.model("Customer", customer);
