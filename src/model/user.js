@@ -66,6 +66,7 @@ const customer = new Schema({
   address: [address],
   notifications: [String],
   cart: [String],
+  review: [String],
 });
 
 const Customer = mongoose.model("Customer", customer);
