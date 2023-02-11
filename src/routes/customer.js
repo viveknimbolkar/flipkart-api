@@ -4,6 +4,7 @@ const db = require("../database/database");
 const { Cart } = require("../model/cart");
 const { Customer } = require("../model/user");
 
+// verify the user geneiun request
 const verifyUser = (req, res, next) => {
   var token = req.headers.authorization;
   if (token) {
@@ -73,7 +74,42 @@ router.post("/add_address", verifyUser, async (req, res) => {
   }
 });
 
-router.post("/get_cart_items", verifyUser, async (req, res) => {});
+router.get("/get_cart_items", verifyUser, async (req, res) => {
+  const email = jwt.decode(
+    req.headers.authorization,
+    process.env.JWT_SECRET
+  ).email;
+
+  Customer.findOne({ email: email })
+    .exec()
+    .then((data) => {
+      if (data) {
+        console.log(data.cart);
+        const cartItemsId = data.cart;
+        Cart.find(
+          {
+            _id: {
+              $in: cartItemsId,
+            },
+          },
+          (err, result) => {
+            if (err) {
+              res
+                .status(400)
+                .json({ msg: "something went wrong. please try again later" });
+            }
+            res.status(200).json({ msg: result });
+          }
+        );
+      } else {
+        res.status(404).json({ msg: "cart is empty" });
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+      res.status(400).json({ msg: "something went wrong. please try again" });
+    });
+});
 
 router.post("/remove_cart_item", verifyUser, async (req, res) => {
   const token = jwt.decode(req.headers.authorization, process.env.JWT_SECRET);
