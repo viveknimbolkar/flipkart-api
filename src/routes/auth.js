@@ -6,10 +6,36 @@ const db = require("../database/database");
 const { Customer } = require("../model/user");
 const nodemailer = require("nodemailer");
 
+/**
+ * @swagger
+ * /:
+ *   get:
+ *     description: Welcome message to API.
+ *     responses:
+ *       200:
+ *         description: Success
+ */
 router.get("/", async (req, res) => {
   res.send("welcome to flipkart-clone");
 });
 
+/**
+ * @swagger
+ * /login:
+ *   post:
+ *     description: login the user
+ *     parameters:
+ *       - in: formData
+ *         name: user_id
+ *         schema:
+ *           type: string
+ *         required: true
+ *     responses:
+ *       200:
+ *         description: Success
+ *       400:
+ *         description: Error
+ */
 router.post("/login", async (req, res) => {
   Customer.find({ email: req.body.email })
     .exec()

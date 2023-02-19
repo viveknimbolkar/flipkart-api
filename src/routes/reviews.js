@@ -100,43 +100,43 @@ router.get("/get_reviews", verifyUser, async (req, res) => {
       });
   });
   
-//   router.post("/remove_review", verifyUser, async (req, res) => {
-//     const token = jwt.decode(req.headers.authorization, process.env.JWT_SECRET);
-//     const {
-//       id, // product id
-//       name, // product name
-//     } = req.body;
+  router.post("/remove_review", verifyUser, async (req, res) => {
+    const token = jwt.decode(req.headers.authorization, process.env.JWT_SECRET);
+    const {
+      id, // product id
+      name, // product name
+    } = req.body;
   
-//     if (!name || !id) {
-//       res.status(400).json({ message: "empty fields are not allowed" });
-//     }
+    if (!name || !id) {
+      res.status(400).json({ message: "empty fields are not allowed" });
+    }
   
-//     Cart.findByIdAndDelete(id, async (err, result) => {
-//       if (err) {
-//         console.log(err);
-//       } else {
-//         console.log("deleted from cart collection");
-//         // remove from user collection as well
-//         const filter = { email: token.email };
-//         const updateCart = {
-//           $pull: {
-//             cart: {
-//               $in: [id],
-//             },
-//           },
-//         };
-//         const removeCartID = await Customer.updateOne(filter, updateCart);
-//         if (removeCartID) {
-//           res.status(200).json({
-//             message: "cart item removed successfuly",
-//           });
-//         } else {
-//           res
-//             .status(200)
-//             .json({ message: "something went wrong! try again later" });
-//         }
-//       }
-//     });
-//   });
+    Reviews.findByIdAndDelete(id, async (err, result) => {
+      if (err) {
+        console.log(err);
+      } else {
+        console.log("deleted from cart collection");
+        // remove from user collection as well
+        const filter = { email: token.email };
+        const updateCart = {
+          $pull: {
+            cart: {
+              $in: [id],
+            },
+          },
+        };
+        const removeCartID = await Customer.updateOne(filter, updateCart);
+        if (removeCartID) {
+          res.status(200).json({
+            message: "cart item removed successfuly",
+          });
+        } else {
+          res
+            .status(200)
+            .json({ message: "something went wrong! try again later" });
+        }
+      }
+    });
+  });
 
 module.exports = router;
