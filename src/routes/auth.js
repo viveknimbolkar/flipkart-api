@@ -26,14 +26,14 @@ router.get("/", async (req, res) => {
  *     description: login the user
  *     parameters:
  *       - in: formData
- *         name: user_id
+ *         email: email
  *         schema:
  *           type: string
  *         required: true
  *     responses:
  *       200:
  *         description: Success
- *       400:
+ *       500:
  *         description: Error
  */
 router.post("/login", async (req, res) => {
@@ -90,6 +90,33 @@ router.post("/login", async (req, res) => {
     });
 });
 
+/**
+ * @swagger
+ * /register:
+ *   post:
+ *     description: register a new user
+ *     parameters:
+ *       - in: query
+ *         name: name
+ *         schema:
+ *           type: string
+ *         required: true
+ *       - in: query
+ *         name: email
+ *         schema:
+ *           type: string
+ *         required: true
+ *       - in: query
+ *         name: password
+ *         schema:
+ *           type: string
+ *         required: true
+ *     responses:
+ *       200:
+ *         description: Success
+ *       500:
+ *         description: Error
+ */
 router.post("/register", async (req, res) => {
   var { name, email, password } = req.body;
 

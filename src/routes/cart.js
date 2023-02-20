@@ -5,6 +5,25 @@ const { Cart } = require("../model/cart");
 const { Customer } = require("../model/user");
 const { verifyUser } = require("../middleware/verifyUser");
 
+/**
+ * @swagger
+ * /get_cart_items:
+ *   post:
+ *     description: Fetch the cart item of specific user
+ *     parameters:
+ *       - in: header
+ *         name: token
+ *         schema:
+ *           type: string
+ *         required: true
+ *     responses:
+ *       200:
+ *         description: Success
+ *       404:
+ *         description: Cart is empty
+ *       500:
+ *         description: Error
+ */
 router.get("/get_cart_items", verifyUser, async (req, res) => {
   const email = jwt.decode(
     req.headers.authorization,
@@ -38,22 +57,41 @@ router.get("/get_cart_items", verifyUser, async (req, res) => {
     })
     .catch((error) => {
       console.log(error);
-      res.status(400).json({ msg: "something went wrong. please try again" });
+      res.status(500).json({ msg: "something went wrong. please try again" });
     });
 });
 
+/**
+ * @swagger
+ * /remove_cart_item:
+ *   post:
+ *     description: Remove cart items of specific user
+ *     parameters:
+ *       - in: query
+ *         name: product_id
+ *         schema:
+ *           type: string
+ *         required: true
+ *       - in: query
+ *         name: product_name
+ *         schema:
+ *           type: string
+ *         required: true
+ *     responses:
+ *       200:
+ *         description: Success
+ *       500:
+ *         description: Error
+ */
 router.post("/remove_cart_item", verifyUser, async (req, res) => {
   const token = jwt.decode(req.headers.authorization, process.env.JWT_SECRET);
-  const {
-    id, // product id
-    name, // product name
-  } = req.body;
+  const { product_id, product_name } = req.body;
 
-  if (!name || !id) {
+  if (!product_name || !product_id) {
     res.status(400).json({ message: "empty fields are not allowed" });
   }
 
-  Cart.findByIdAndDelete(id, async (err, result) => {
+  Cart.findByIdAndDelete(product_id, async (err, result) => {
     if (err) {
       console.log(err);
     } else {
@@ -63,7 +101,7 @@ router.post("/remove_cart_item", verifyUser, async (req, res) => {
       const updateCart = {
         $pull: {
           cart: {
-            $in: [id],
+            $in: [product_id],
           },
         },
       };
@@ -74,12 +112,65 @@ router.post("/remove_cart_item", verifyUser, async (req, res) => {
         });
       } else {
         res
-          .status(200)
+          .status(500)
           .json({ message: "something went wrong! try again later" });
       }
     }
   });
 });
+
+/**
+ * @swagger
+ * /add_to_cart:
+ *   post:
+ *     description: Add cart items of specific user
+ *     parameters:
+ *       - in: query
+ *         name: name
+ *         schema:
+ *           type: string
+ *         required: true
+ *       - in: query
+ *         name: price
+ *         schema:
+ *           type: string
+ *         required: true
+ *       - in: query
+ *         name: image
+ *         schema:
+ *           type: string
+ *         required: true
+ *       - in: query
+ *         name: in_stock
+ *         schema:
+ *           type: string
+ *         required: true
+ *       - in: query
+ *         name: discount
+ *         schema:
+ *           type: string
+ *         required: true
+ *       - in: query
+ *         name: original_price
+ *         schema:
+ *           type: string
+ *         required: true
+ *       - in: query
+ *         name: flipkart_assured
+ *         schema:
+ *           type: string
+ *         required: true
+ *       - in: query
+ *         name: seller_name
+ *         schema:
+ *           type: string
+ *         required: true
+ *     responses:
+ *       200:
+ *         description: Success
+ *       500:
+ *         description: Error
+ */
 
 router.post("/add_to_cart", verifyUser, async (req, res) => {
   const token = jwt.decode(req.headers.authorization, process.env.JWT_SECRET);
@@ -87,41 +178,40 @@ router.post("/add_to_cart", verifyUser, async (req, res) => {
     name,
     price,
     image,
-    inStock,
+    in_stock,
     discount,
-    originalPrice,
-    flipkartAssured,
-    sellerName,
+    original_price,
+    flipkart_assured,
+    seller_name,
   } = req.body;
 
   if (
     !name ||
     !price ||
     !image ||
-    !inStock ||
+    !in_stock ||
     !discount ||
-    !originalPrice ||
-    !flipkartAssured ||
-    !sellerName
+    !original_price ||
+    !flipkart_assured ||
+    !seller_name
   ) {
-    res.status(400).json({ message: "empty fields are not allowed" });
+    res.status(200).json({ message: "empty fields are not allowed" });
   }
 
   const cartItem = {
     name: name,
     price: price,
     image: image,
-    inStock: inStock,
+    inStock: in_stock,
     discount: discount,
-    originalPrice: originalPrice,
-    flipkartAssured: flipkartAssured,
-    sellerName: sellerName,
-    one: "sld",
+    originalPrice: original_price,
+    flipkartAssured: flipkart_assured,
+    sellerName: seller_name,
   };
   // add to cart table
   const cart = new Cart(cartItem);
   const result = await cart.save();
-  
+
   if (result) {
     // add cart item in respective user account
     const filter = { email: token.email };
@@ -135,11 +225,11 @@ router.post("/add_to_cart", verifyUser, async (req, res) => {
       res.status(200).json({ message: "cart item added" });
     } else {
       res
-        .status(200)
+        .status(500)
         .json({ message: "something went wrong! try again later" });
     }
   } else {
-    res.status(200).json({ message: "something went wrong! try again later" });
+    res.status(500).json({ message: "something went wrong! try again later" });
   }
 });
 module.exports = router;

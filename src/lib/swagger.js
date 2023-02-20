@@ -7,9 +7,8 @@ const swaggerOptions = {
       version: "1.0.0",
     },
   },
-  apis: ["../routes/auth.js"],
+  apis: ["./src/routes/*.js"],
 };
 
 const swaggerDocs = swaggerJsDocs(swaggerOptions);
-console.log("working");
 exports.swaggerDocs = swaggerDocs;
