@@ -19,16 +19,78 @@ const verifyUser = (req, res, next) => {
   }
 };
 
+/**
+ * @swagger
+ * /add_address:
+ *   post:
+ *     description: add address to the specific user
+ *     parameters:
+ *       - in: query
+ *         name: name
+ *         schema:
+ *           type: string
+ *         required: true
+ *       - in: query
+ *         name: mobile
+ *         schema:
+ *           type: string
+ *         required: true
+ *       - in: query
+ *         name:alternate_mobile
+ *         schema:
+ *           type: string
+ *         required: true
+ *       - in: query
+ *         name: pincode
+ *         schema:
+ *           type: string
+ *         required: true
+ *       - in: query
+ *         name: address
+ *         schema:
+ *           type: string
+ *         required: true
+ *       - in: query
+ *         name: locality
+ *         schema:
+ *           type: string
+ *         required: true
+ *       - in: query
+ *         name: address_type
+ *         schema:
+ *           type: string
+ *         required: true
+ *       - in: query
+ *         name: city
+ *         schema:
+ *           type: string
+ *         required: true
+ *       - in: query
+ *         name: state
+ *         schema:
+ *           type: string
+ *         required: true
+ *       - in: query
+ *         name: landmark
+ *         schema:
+ *           type: string
+ *         required: true
+ *     responses:
+ *       200:
+ *         description: Success
+ *       500:
+ *         description: Error
+ */
 router.post("/add_address", verifyUser, async (req, res) => {
   const token = jwt.decode(req.headers.authorization, process.env.JWT_SECRET);
   const {
     name,
     mobile,
-    alternateMobile,
+    alternate_mobile,
     pincode,
     address,
     locality,
-    addressType,
+    address_type,
     city,
     state,
     landmark,
@@ -36,11 +98,11 @@ router.post("/add_address", verifyUser, async (req, res) => {
   if (
     !name ||
     !mobile ||
-    !alternateMobile ||
+    !alternate_mobile ||
     !pincode ||
     !address ||
     !locality ||
-    !addressType ||
+    !address_type ||
     !city ||
     !state ||
     !landmark
@@ -50,11 +112,11 @@ router.post("/add_address", verifyUser, async (req, res) => {
   const newAddress = {
     name: name,
     mobile: mobile,
-    alternateMobile: alternateMobile,
+    alternateMobile: alternate_mobile,
     pincode: pincode,
     address: address,
     locality: locality,
-    addressType: addressType,
+    addressType: address_type,
     city: city,
     state: state,
     landmark: landmark,
@@ -70,148 +132,27 @@ router.post("/add_address", verifyUser, async (req, res) => {
   if (addNewAddress) {
     res.status(200).json({ message: "address added successfully" });
   } else {
-    res.status(200).json({ message: "something went wrong! try again later" });
+    res.status(500).json({ message: "something went wrong! try again later" });
   }
 });
 
-// router.get("/get_cart_items", verifyUser, async (req, res) => {
-//   const email = jwt.decode(
-//     req.headers.authorization,
-//     process.env.JWT_SECRET
-//   ).email;
-
-//   Customer.findOne({ email: email })
-//     .exec()
-//     .then((data) => {
-//       if (data) {
-//         console.log(data.cart);
-//         const cartItemsId = data.cart;
-//         Cart.find(
-//           {
-//             _id: {
-//               $in: cartItemsId,
-//             },
-//           },
-//           (err, result) => {
-//             if (err) {
-//               res
-//                 .status(400)
-//                 .json({ msg: "something went wrong. please try again later" });
-//             }
-//             res.status(200).json({ msg: result });
-//           }
-//         );
-//       } else {
-//         res.status(404).json({ msg: "cart is empty" });
-//       }
-//     })
-//     .catch((error) => {
-//       console.log(error);
-//       res.status(400).json({ msg: "something went wrong. please try again" });
-//     });
-// });
-
-// router.post("/remove_cart_item", verifyUser, async (req, res) => {
-//   const token = jwt.decode(req.headers.authorization, process.env.JWT_SECRET);
-//   const {
-//     id, // product id
-//     name, // product name
-//   } = req.body;
-
-//   if (!name || !id) {
-//     res.status(400).json({ message: "empty fields are not allowed" });
-//   }
-
-//   Cart.findByIdAndDelete(id, async (err, result) => {
-//     if (err) {
-//       console.log(err);
-//     } else {
-//       console.log("deleted from cart collection");
-//       // remove from user collection as well
-//       const filter = { email: token.email };
-//       const updateCart = {
-//         $pull: {
-//           cart: {
-//             $in: [id],
-//           },
-//         },
-//       };
-//       const removeCartID = await Customer.updateOne(filter, updateCart);
-//       if (removeCartID) {
-//         res.status(200).json({
-//           message: "cart item removed successfuly",
-//         });
-//       } else {
-//         res
-//           .status(200)
-//           .json({ message: "something went wrong! try again later" });
-//       }
-//     }
-//   });
-// });
-
-// router.post("/add_to_cart", verifyUser, async (req, res) => {
-//   const token = jwt.decode(req.headers.authorization, process.env.JWT_SECRET);
-//   const {
-//     name,
-//     price,
-//     image,
-//     inStock,
-//     discount,
-//     originalPrice,
-//     flipkartAssured,
-//     sellerName,
-//   } = req.body;
-
-//   if (
-//     !name ||
-//     !price ||
-//     !image ||
-//     !inStock ||
-//     !discount ||
-//     !originalPrice ||
-//     !flipkartAssured ||
-//     !sellerName
-//   ) {
-//     res.status(400).json({ message: "empty fields are not allowed" });
-//   }
-
-//   const cartItem = {
-//     name: name,
-//     price: price,
-//     image: image,
-//     inStock: inStock,
-//     discount: discount,
-//     originalPrice: originalPrice,
-//     flipkartAssured: flipkartAssured,
-//     sellerName: sellerName,
-//     one: "sld",
-//   };
-//   // add to cart table
-//   const cart = new Cart(cartItem);
-//   const result = await cart.save();
-//   console.log(result);
-//   if (result) {
-//     // add cart item in respective user account
-//     const filter = { email: token.email };
-//     const updateCart = {
-//       $push: {
-//         cart: result._id,
-//       },
-//     };
-//     const addCartItemToUser = await Customer.updateOne(filter, updateCart);
-//     if (addCartItemToUser) {
-//       res.status(200).json({ message: "cart item added" });
-//     } else {
-//       res
-//         .status(200)
-//         .json({ message: "something went wrong! try again later" });
-//     }
-//   } else {
-//     res.status(200).json({ message: "something went wrong! try again later" });
-//   }
-// });
-
+/**
+ * @swagger
+ * /get_customer_gender:
+ *   post:
+ *     description: Remove cart items of specific user
+ *     parameters:
+ *       - in: header
+ *         name: token
+ *         schema:
+ *           type: string
+ *         required: true
+ *     responses:
+ *       200:
+ *         description: Success
+ *       500:
+ *         description: Error
+ */
 router.post("/get_customer_gender", async (req, res) => {
   var token = req.headers.authorization;
   const verifyIdentity = jwt.verify(token, process.env.JWT_SECRET);
@@ -230,6 +171,28 @@ router.post("/get_customer_gender", async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /update_customer_gender:
+ *   post:
+ *     description: update customer gender
+ *     parameters:
+ *       - in: query
+ *         name: gender
+ *         schema:
+ *           type: string
+ *         required: true
+ *       - in: query
+ *         name: email
+ *         schema:
+ *           type: string
+ *         required: true
+ *     responses:
+ *       200:
+ *         description: Success
+ *       500:
+ *         description: Error
+ */
 router.post("/update_customer_gender", async (req, res) => {
   var { gender, email } = req.body;
   console.log(gender, email);
@@ -253,6 +216,24 @@ router.post("/update_customer_gender", async (req, res) => {
   res.end();
 });
 
+
+/**
+ * @swagger
+ * /update_customer_gender:
+ *   post:
+ *     description: get customer name
+ *     parameters:
+ *       - in: query
+ *         name: gender
+ *         schema:
+ *           type: string
+ *         required: true
+ *     responses:
+ *       200:
+ *         description: Success
+ *       500:
+ *         description: Error
+ */
 router.post("/get_customer_name", async (req, res) => {
   var token = req.headers.authorization;
   const verifyIdentity = jwt.verify(token, process.env.JWT_SECRET);
