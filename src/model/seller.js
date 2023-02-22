@@ -15,6 +15,7 @@ const seller = new Schema({
     require: true,
     type: String,
   },
+  product: [String],
 });
 
 const Seller = mongoose.model("Seller", seller);

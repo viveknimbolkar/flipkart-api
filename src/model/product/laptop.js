@@ -39,7 +39,7 @@ const specification = new Schema({
     processorBrand: {
       type: String,
     },
-    ProcessorName: {
+    processorName: {
       type: String,
     },
     SSD: {
@@ -193,7 +193,7 @@ const review = new Schema({
   author: {
     type: String,
   },
-  rating: {
+  reviewRating: {
     type: String,
   },
   longComment: {
@@ -202,10 +202,10 @@ const review = new Schema({
   shortComment: {
     type: String,
   },
-  date: {
+  reviewDate: {
     type: String,
   },
-  images: [String],
+  reviewImages: [String],
 });
 
 const exchange = new Schema({
@@ -218,10 +218,10 @@ const exchange = new Schema({
 });
 
 const seller_info = new Schema({
-  name: {
+  sellerName: {
     type: String,
   },
-  rating: {
+  sellerRating: {
     type: String,
   },
 });
@@ -268,6 +268,7 @@ const easy_payment_options = new Schema({
 
 // main user schema
 const laptop = new Schema({
+  productType: { type: String, require: true },
   details: {
     type: String,
   },
@@ -286,9 +287,6 @@ const laptop = new Schema({
   discount: {
     type: String,
   },
-  rating: {
-    type: String,
-  },
   images: [String],
   exchange: exchange,
   sellerInfo: seller_info,
@@ -297,9 +295,6 @@ const laptop = new Schema({
   },
   offers: [Object],
   highlights: [String],
-  easyPaymentOptions: {
-    type: String,
-  },
   easyPaymentOptions: easy_payment_options,
   reviewDetails: [review],
   specifications: specification,
